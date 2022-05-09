@@ -3,50 +3,79 @@
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.2.3/milligram.min.css">
   </head>
   <body class="container" style="padding-top: 3%;">
-    <h2><a href="index.html">ethjs</a></h2>
-    <h4>Your Accounts</h4>
+    <h2><a href="index.html">Home</a></h2>
+    <h4>Account dApp</h4>
+    <!-- Extension Notice -->
+    <div style=" border: 1px solid #9b4dca; padding: 10px; margin-bottom: 10px;">
+      <p>Make sure to either enable the Universal Profile Extension or MetaMask at the same time. Here you can find guides to do so for
+        <a href="https://support.google.com/chrome_webstore/answer/2664769?hl=en" target="_blank">Chrome</a> and
+        <a href="https://support.mozilla.org/en-US/kb/disable-or-remove-add-ons#w_disabling-and-removing-extensions" target="_blank">Firefox.</a>
+      </p>
+      <table>
+        <tr>
+          <th>By using the Universal Profile Extension:</th>
+          <th>By using the MetaMask Extension:</th>
+        </tr>
+        <tr>
+          <td>- Log in and see your balance</td>
+          <td>- Log in </br> - <a href="https://docs.lukso.tech/networks/l14-testnet" target=”_blank”>Add the LUKSO L14 Network</a>
+            </br> - Swap to the LUKSO L14 Network and refresh the page
+            </br> - See your balance interacting</td>
+        </tr>
+      </table>
+    </div>
+    <!-- Warnings -->
+    <p id="browser" style=" background-color: #F4F5F6; display: none; padding: 10px;">Please switch to a
+      <a href="https://www.google.com/chrome/" target="_blank">Chrome</a> or
+      <a href="https://www.mozilla.org/firefox/new/" target="_blank">Firefox</a> browser to use this dApp.
+    </p>
+    <p id="network" style=" background-color: #F4F5F6; display: none; padding: 10px;">
+        Please swap to the LUKSO L14 testnetwork in order to interact.
+    </p>
+    <p id="install" style=" background-color: #F4F5F6; display: none; padding: 10px;">
+        Please install the
+        <a href="WIP" target="_blank">Universal Profile</a> or
+        <a href="https://metamask.io/" target="_blank">MetaMask</a> extension to login.
+    </p>
+    <div id="login" style=" background-color: #F4F5F6; padding: 10px 10px 0px 10px; display: none; align-items: center;">
+        <button id="loginbutton">Log in to your browser extension</button>
+    </div>
 
     <hr />
-
+    <!-- dApp Frontend-->
     <table>
       <thead> <tr> <th>Address</th> <th>Balance</th> </tr> </thead>
-      <tbody id="accounts"> <tr><td colspan="2">Loading your accounts...</td></tr> </tbody>
+      <tbody id="accounts"> <tr><td colspan="2">Trying to load your accounts...</td></tr> </tbody>
     </table>
 
-    <script type="text/javascript" src="ethereumjs-testrpc.js"></script>
-    <script type="text/javascript" src="ethjs.js"></script>
+    <!-- Web3 -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <!-- Connect Extension & Check Network -->
+    <script src="./utils.js"></script>
+    <!-- dApp Function -->
     <script type="text/javascript">
-      var eth = new Eth(TestRPC.provider());
-      var el = function(id){ return document.querySelector(id); };
+      let el = function(id){ return document.querySelector(id); };
 
-      /*
-      // uncomment to enable MetaMask support:
-      if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
-        eth.setProvider(window.web3.currentProvider);
-      } else {
-        eth.setProvider(provider); // set to TestRPC if not available
-      }
-      */
+      async function dApp() {
+        // Check network
+        if(await connectWeb3() && await checkNetwork()){
+          const web3 = new Web3(window.ethereum);
+          let accounts = await ethereum.request({ method: "eth_accounts" });
+          console.log(accounts);
 
-      eth.accounts(function(accountsError, accounts) {
-        if (accountsError) {
-          el('#accounts').innerHTML = 'Hmm.. looks like there was an error: '
-            + String(accountsError);
+          for (var i = 0; i < accounts.length; i++){
+            el('#accounts').innerHTML += '<tr><td>'
+              + accounts[i] + '</td><td id="accountBalance_'
+              + accounts[i] + '"></td></tr>';
+            console.log();
+            el('#accountBalance_' + accounts[i]).innerHTML += web3.utils.fromWei(await web3.eth.getBalance(accounts[i]), 'ether')
+            + ' LYXt';
+          }
         }
+      };
+      dApp();
 
-        el('#accounts').innerHTML = '';
 
-        accounts.forEach(function(account){
-          el('#accounts').innerHTML += '<tr><td>'
-            + account + '</td><td id="accountBalance_'
-            + account + '"></td></tr>';
-
-          eth.getBalance(account, function(balanceError, balance){
-            el('#accountBalance_' + account).innerHTML += Eth.fromWei(balance, 'ether')
-              + ' ether';
-          });
-        });
-      });
     </script>
   </body>
 </html>
