@@ -3,31 +3,62 @@
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.2.3/milligram.min.css">
   </head>
   <body class="container" style="padding-top: 3%;">
-    <h2><a href="index.html">ethjs</a></h2>
-    <h4>SimpleStore Contract</h4>
+    <h2><a href="index.html">Home</a></h2>
+    <h4>Simple Storage dApp</h4>
+    <!-- Extension Notice -->
+    <div style=" border: 1px solid #9b4dca; padding: 10px; margin-bottom: 10px;">
+      <p>Make sure to either enable the Universal Profile Extension or MetaMask at the same time. Here you can find guides to do so for
+        <a href="https://support.google.com/chrome_webstore/answer/2664769?hl=en" target="_blank">Chrome</a> and
+        <a href="https://support.mozilla.org/en-US/kb/disable-or-remove-add-ons#w_disabling-and-removing-extensions" target="_blank">Firefox.</a>
+      </p>
+      <table>
+        <tr>
+          <th>By using the Universal Profile Extension:</th>
+          <th>By using the MetaMask Extension:</th>
+        </tr>
+        <tr>
+          <td>- Log in and start interacting</td>
+          <td>- Log in </br> - <a href="https://docs.lukso.tech/networks/l14-testnet" target=”_blank”>Add the LUKSO L14 Network</a>
+            </br> - Swap to the LUKSO L14 Network and refresh the page
+            </br> - <a href="http://faucet.l14.lukso.network/" target=”_blank”>Get test token from the LUKSO L14 faucet</a>
+            </br> - Start interacting</td>
+        </tr>
+      </table>
+    </div>
+    <!-- Warnings -->
+    <p id="browser" style=" background-color: #F4F5F6; display: none; padding: 10px;">Please switch to a
+      <a href="https://www.google.com/chrome/" target="_blank">Chrome</a> or
+      <a href="https://www.mozilla.org/firefox/new/" target="_blank">Firefox</a> browser to use this dApp.
+    </p>
+    <p id="network" style=" background-color: #F4F5F6; display: none; padding: 10px;">
+        Please swap to the LUKSO L14 testnetwork in order to interact.
+    </p>
+    <p id="install" style=" background-color: #F4F5F6; display: none; padding: 10px;">
+        Please install the
+        <a href="WIP" target="_blank">Universal Profile</a> or
+        <a href="https://metamask.io/" target="_blank">MetaMask</a> extension to login.
+    </p>
+    <div id="login" style=" background-color: #F4F5F6; padding: 10px 10px 0px 10px; display: none; align-items: center;">
+        <button id="loginbutton">Log in to your browser extension</button>
+    </div>
 
     <hr />
 
+    <!-- dApp Frontend -->
     <div class="row">
       <div class="column column-60">
         <label>Set Value</label>
         <input id="valueAmount" type="number" placeholder="i.e. 4500" />
-
+        <div id="error" style="color: #9b4dca; padding-bottom: 10px;">Anyone can set/get values to/from the blockchain.</div>
         <button id="setValue">Set Value</button>
         <button id="getValue">Get Value</button>
 
         <br /><br />
-
-        <div id="response" style="padding: 20px; border: 1px solid #9b4dca; word-wrap: break-word">
-          Deploying your contract...
-        </div>
+        <div id="response" style="padding: 20px; border: 1px solid #9b4dca; word-wrap: break-word; min-height: 94px">Empty response window</div>
       </div>
       <div class="column column-40">
-        <label>Bytecode</label>
-        <input id="bytecode" type="text" value="" />
-
         <label>ABI</label>
-        <textarea id="abi"></textarea>
+        <textarea id="abi" style="height: 256px;"></textarea>
       </div>
     </div>
 
@@ -36,71 +67,78 @@
     <label>Solidity Code</label>
 
     <pre><code>
-contract SimpleStore {
-  function set(uint _value) {
-    value = _value;
-  }
+      contract SimpleStore {
 
-  function get() constant returns (uint) {
-    return value;
-  }
+        function set(uint _value) public {
+          value = _value;
+        }
 
-  uint value;
-}
-    </code></pre>
+        function get() public view returns (uint) {
+          return value;
+        }
 
-    <script type="text/javascript" src="ethereumjs-testrpc.js"></script>
-    <script type="text/javascript" src="ethjs.js"></script>
-    <script type="text/javascript">
-      var eth = new Eth(TestRPC.provider());
-      var el = function(id){ return document.querySelector(id); };
-
-      /*
-      // uncomment to enable MetaMask support:
-      if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
-        eth.setProvider(window.web3.currentProvider);
-      } else {
-        eth.setProvider(provider); // set to TestRPC if not available
+        uint value;
       }
-      */
+    </code></pre>
+    <hr />
+    <b style="padding-bottom: 50px ">Repository File</b><a href="https://github.com/lukso-network/example-dapps-ethjs/blob/master/first-contract.html" target="_blank">lukso-network/example-dapps-ethjs/first-contract.html</a>
 
-      eth.accounts().then(function(accounts) {
-        var SimpleStoreBytecode = '606060405234610000575b6090806100176000396000f360606040526000357c01000000000000000000000000000000000000000000000000000000009004806360fe47b11460405780636d4ce63c14605a575b6000565b3460005760586004808035906020019091905050607a565b005b3460005760646085565b6040518082815260200191505060405180910390f35b806000819055505b50565b600060005490505b9056';
-        var SimpleStoreABI = [{"constant":false,"inputs":[{"name":"_value","type":"uint256"}],"name":"set","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"get","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"}];
-        var SimpleStore = eth.contract(SimpleStoreABI, SimpleStoreBytecode, { from: accounts[0], gas: 300000 });
-        var simpleStoreInstance;
+    <!-- Web3 -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <!-- Connect Extension & Check Network -->
+    <script src="./utils.js"></script>
+    <!-- dApp Function -->
+    <script type="text/javascript">
+      let el = function(id){ return document.querySelector(id); };
 
-        el('#bytecode').value = SimpleStoreBytecode;
-        el('#abi').value = JSON.stringify(SimpleStoreABI);
+      const SimpleStoreABI = [{"inputs":[],"name":"get","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_value","type":"uint256"}],"name":"set","outputs":[],"stateMutability":"nonpayable","type":"function"}];
+      el('#abi').value = JSON.stringify(SimpleStoreABI, null, 2);
 
-        SimpleStore.new({}).then(function(txHash){
-          var checkTransaction = setInterval(function(){
-            eth.getTransactionReceipt(txHash).then(function(receipt){
-              if (receipt) {
-                clearInterval(checkTransaction);
-                simpleStoreInstance = SimpleStore.at(receipt.contractAddress);
-
-                el('#response').innerHTML = 'Contract deployed to address: ' + String(receipt.contractAddress);
-                el('#setValue').addEventListener('click', function(){
-                  simpleStoreInstance.set(el('#valueAmount').value)
-                  .then(function(setTxHash){
-                    el('#response').innerHTML = 'Setting value... Your transaction hash is: ' + String(setTxHash);
-                  });
-                });
-
-                el('#getValue').addEventListener('click', function(){
-                  simpleStoreInstance.get().then(function(valueStored){
-                    el('#response').innerHTML = 'The value stored in the contract is: ' + valueStored[0].toString(10);
-                  });
+      async function dApp() {
+        // Check network
+        if(await connectWeb3() && await checkNetwork()){
+          const web3 = new Web3(window.ethereum);
+          let accounts = await ethereum.request({ method: "eth_accounts" });
+          // Static dApp contract
+          let simpleStoreInstance = new web3.eth.Contract(SimpleStoreABI, '0xaA61d96cB849246Ebf3cf148e2f42F3FF216EA4D');
+          //Set Function
+          el('#setValue').addEventListener('click', function(){
+            let input = el('#valueAmount').value;
+            // Check if input is valid
+            if (input.length >= 1 && !isNaN(input)){
+              el('#response').innerHTML = "Trying to set value...";
+              el('#error').innerHTML = "Anyone can set/get values to/from the blockchain.";
+              if(window.ethereum.isMetaMask){
+                simpleStoreInstance.methods.set(input).send({ from: web3.currentProvider.selectedAddress})
+                .then(function(transactionReceipt){
+                  el('#response').innerHTML = 'Value set. Your transaction hash is: ' + transactionReceipt.transactionHash;
                 });
               }
+              else {
+                simpleStoreInstance.methods.set(input).send({ from: accounts[0]})
+                .then(function(transactionReceipt){
+                  el('#response').innerHTML = 'Value set. Your transaction hash is: ' + transactionReceipt.transactionHash;
+                });
+              }
+
+            }
+            // input invalid
+            else{
+              el('#error').innerHTML = "You have to input a number before setting the value!"
+            }
+          });
+
+          // Get Function
+          el('#getValue').addEventListener('click', function(){
+            simpleStoreInstance.methods.get().call()
+            .then(function(valueStored){
+              el('#response').innerHTML = 'The current value  stored in the smart contract is: ' + valueStored;
             });
-          }, 400);
-        })
-        .catch(function(error){
-          el('#response').innerHTML = 'There was an error: ' + String(error);
-        });
-      });
+          });
+        }
+      };
+      dApp();
+
     </script>
   </body>
 </html>
